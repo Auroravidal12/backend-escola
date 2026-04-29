@@ -1,42 +1,41 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
 app.use(express.json());
 
-mongoose.connect("mongodb://127.0.0.1:27017/escola")
-  .then(() => console.log("MongoDB conectado"))
+// MongoDB
+mongoose.connect("mongodb+srv://auroravidal153_db_user:Aurora18%40@cluster0.efuwjnk.mongodb.net/?appName=Cluster0")
+  .then(() => console.log("Mongo conectado!"))
   .catch(err => console.log(err));
 
-const Aluno = require("./models/Aluno");
-
-// CREATE
-app.post("/alunos", async (req, res) => {
-  const aluno = await Aluno.create(req.body);
-  res.json(aluno);
+// Rota base
+app.get("/", (req, res) => {
+  res.send("API funcionando 🚀");
 });
 
-// READ
-app.get("/alunos", async (req, res) => {
-  const alunos = await Aluno.find();
-  res.json(alunos);
+// Modelo
+const User = mongoose.model("User", {
+  name: String,
+  email: String,
+  password: String
 });
 
-// UPDATE
-app.put("/alunos/:id", async (req, res) => {
-  const aluno = await Aluno.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  res.json(aluno);
+// Rotas
+app.post("/users", async (req, res) => {
+  const user = await User.create(req.body);
+  res.json(user);
 });
 
-// DELETE
-app.delete("/alunos/:id", async (req, res) => {
-  await Aluno.findByIdAndDelete(req.params.id);
-  res.json({ ok: true });
+app.get("/users", async (req, res) => {
+  const users = await User.find();
+  res.json(users);
 });
 
-app.listen(3000, () => {
-  console.log("Servidor rodando na porta 3000");
+// PORT DO RENDER
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log("Servidor rodando na porta", PORT);
 });
