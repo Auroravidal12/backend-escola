@@ -90,3 +90,30 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Servidor rodando na porta", PORT);
 });
+
+const Turma = mongoose.model("Turma", {
+  nome: String,
+  sala: String
+});
+
+app.post("/turmas", async (req, res) => {
+  const turma = await Turma.create(req.body);
+  res.json(turma);
+});
+
+
+app.get("/turmas", async (req, res) => {
+  const turmas = await Turma.find();
+  res.json(turmas);
+});
+
+app.put("/turmas/:id", async (req, res) => {
+  const turma = await Turma.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  res.json(turma);
+});
+
+app.delete("/turmas/:id", async (req, res) => {
+  await Turma.findByIdAndDelete(req.params.id);
+  res.json({ ok: true });
+});
+
