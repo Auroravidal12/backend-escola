@@ -1,9 +1,15 @@
+const cors = require("cors");
 const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const app = express();
+
+// 🔥 CORS (CORREÇÃO PRINCIPAL)
+app.use(cors({
+  origin: "*"
+}));
 
 app.use(express.json());
 
@@ -12,11 +18,17 @@ mongoose.connect("mongodb+srv://auroravidal153_db_user:Aurora18%40@cluster0.efuw
   .then(() => console.log("Mongo conectado!"))
   .catch(err => console.log(err));
 
-// MODELO (SÓ UMA VEZ)
+// MODELO USER
 const User = mongoose.model("User", {
   name: String,
   email: String,
   password: String
+});
+
+// MODELO TURMA
+const Turma = mongoose.model("Turma", {
+  nome: String,
+  sala: String
 });
 
 // ROTA BASE
@@ -24,7 +36,7 @@ app.get("/", (req, res) => {
   res.send("API funcionando 🚀");
 });
 
-// CRUD simples
+// USERS CRUD
 app.post("/users", async (req, res) => {
   const user = await User.create(req.body);
   res.json(user);
@@ -63,7 +75,7 @@ app.post("/login", async (req, res) => {
   res.json({ token });
 });
 
-// MIDDLEWARE AUTH
+// AUTH MIDDLEWARE
 function auth(req, res, next) {
   const token = req.headers.authorization;
 
@@ -78,29 +90,17 @@ function auth(req, res, next) {
   }
 }
 
-// PERFIL PROTEGIDO
+// PERFIL
 app.get("/perfil", auth, async (req, res) => {
   const user = await User.findById(req.userId);
   res.json(user);
 });
 
-// PORT RENDER
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log("Servidor rodando na porta", PORT);
-});
-
-const Turma = mongoose.model("Turma", {
-  nome: String,
-  sala: String
-});
-
+// TURMAS CRUD
 app.post("/turmas", async (req, res) => {
   const turma = await Turma.create(req.body);
   res.json(turma);
 });
-
 
 app.get("/turmas", async (req, res) => {
   const turmas = await Turma.find();
@@ -117,3 +117,9 @@ app.delete("/turmas/:id", async (req, res) => {
   res.json({ ok: true });
 });
 
+// PORT
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log("Servidor rodando na porta", PORT);
+});
